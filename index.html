@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Fire Likes</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #101522;
+      color: white;
+      text-align: center;
+    }
+    header {
+      padding: 22px 12px;
+      background: #1c2538;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    main {
+      max-width: 440px;
+      margin: 35px auto;
+      padding: 20px;
+    }
+    .card {
+      background: #1c2538;
+      border: 1px solid #35435d;
+      border-radius: 16px;
+      padding: 24px;
+      margin: 18px 0;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 10px;
+      background: #ffb52e;
+      color: #151515;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .secondary { background: #54d6a0; }
+    p { color: #cbd5e1; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <header>🔥 FREE FIRE LIKES</header>
+
+  <main>
+    <h2>Welcome!</h2>
+    <p>Select your preferred likes service.</p>
+
+    <div class="card">
+      <h2>⚡ Instant Like</h2>
+      <p>Choose a likes package.</p>
+      <button onclick="chooseService('instant')">
+        Instant Like
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>🤖 Auto Like</h2>
+      <p>Choose your subscription duration.</p>
+      <button class="secondary"
+        onclick="chooseService('auto')">
+        Auto Like
+      </button>
+    </div>
+
+    <div id="packages"></div>
+  </main>
+
+  <script>
+    function chooseService(service) {
+      const packages = document.getElementById('packages');
+
+      const items = service === 'instant'
+        ? ['100 Likes', '220 Likes', '500 Likes', '1000 Likes']
+        : ['3 Days', '7 Days', '15 Days', '30 Days', 'Permanent'];
+
+      packages.innerHTML = `
+        <div class="card">
+          <h2>${service === 'instant' ? 'Instant Packages' : 'Auto Like Packages'}</h2>
+          ${items.map(item => `
+            <p>${item}</p>
+          `).join('')}
+        </div>
+      `;
+
+      packages.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
