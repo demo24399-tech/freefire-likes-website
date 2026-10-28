@@ -1,5 +1,7 @@
 
 <!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,81 +9,199 @@
   <title>Free Fire Admin Panel</title>
   <style>
     body {
-      margin: 0;
-      padding: 20px;
+      margin: 0; padding: 20px;
       font-family: Arial, sans-serif;
-      background: #101522;
-      color: white;
+      background: #101522; color: white;
     }
     main {
-      max-width: 420px;
-      margin: 25px auto;
-      background: #1c2538;
-      padding: 20px;
+      max-width: 460px; margin: 25px auto;
+      background: #1c2538; padding: 20px;
       border-radius: 14px;
     }
     input, button {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 13px;
-      margin: 8px 0;
-      border-radius: 8px;
-      font-size: 16px;
+      width: 100%; box-sizing: border-box;
+      padding: 13px; margin: 8px 0;
+      border-radius: 8px; font-size: 16px;
     }
     input {
       border: 1px solid #53627b;
-      background: #101522;
-      color: white;
+      background: #101522; color: white;
     }
     button {
-      border: 0;
-      background: #ffb52e;
-      font-weight: bold;
+      border: 0; background: #ffb52e;
+      color: #101522; font-weight: bold;
+      cursor: pointer;
     }
-    p { color: #cbd5e1; }
+    p { color: #cbd5e1; overflow-wrap: anywhere; }
+    .package {
+      border: 1px solid #53627b;
+      padding: 10px; border-radius: 10px;
+      margin: 12px 0;
+    }
+    .package input { margin-bottom: 0; }
   </style>
 </head>
 <body>
-  <main>
-    <h2>🔐 Admin Panel</h2>
-    <p>এটি শুধু Admin Panel-এর প্রাথমিক ডিজাইন।</p>
+<main>
+  <h2>🔐 Free Fire Admin Panel</h2>
+  <p>Login করে প্যাকেজের দাম পরিবর্তন করো।</p>
 
-    <label>Admin Password</label>
-    <input id="password" type="password"
-      placeholder="Enter admin password">
+  <label>Admin Password</label>
+  <input id="password" type="password"
+         placeholder="Enter admin password" autocomplete="current-password">
+  <button id="loginBtn" onclick="login()">Login</button>
+  <p id="message" role="status"></p>
 
-    <button onclick="login()">Login</button>
-    <p id="message"></p>
+  <section id="priceForm" hidden>
+    <h3>📦 Package Prices</h3>
+    <p>Backend থেকে পাওয়া package ID ও দাম এখানে দেখাবে।</p>
+    <div id="packages"></div>
+    <button id="saveBtn" onclick="savePrices()">💾 Save Prices</button>
+    <button onclick="logout()">Logout</button>
+    <p id="saveMessage" role="status"></p>
+  </section>
+</main>
 
-    <section id="priceForm" hidden>
-      <h3>Instant Like Prices</h3>
-      <input id="p100" type="number" placeholder="100 Likes price">
-      <input id="p220" type="number" placeholder="220 Likes price">
-      <input id="p500" type="number" placeholder="500 Likes price">
-      <input id="p1000" type="number" placeholder="1000 Likes price">
+<script>
+const API = "https://freefire-likes-backend.onrender.com";
+let token = "";
+let packageData = [];
 
-      <h3>Auto Like Prices</h3>
-      <input id="p3" type="number" placeholder="3 Days price">
-      <input id="p7" type="number" placeholder="7 Days price">
-      <input id="p15" type="number" placeholder="15 Days price">
-      <input id="p30" type="number" placeholder="30 Days price">
-      <input id="pPermanent" type="number" placeholder="Permanent price">
+async function login() {
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("message");
+  const btn = document.getElementById("loginBtn");
 
-      <button onclick="savePrices()">Save Prices</button>
-      <p id="saveMessage"></p>
-    </section>
-  </main>
+  if (!password) {
+    message.textContent = "Admin password লিখো।";
+    return;
+  }
 
-  <script>
-    function login() {
-      document.getElementById('message').textContent =
-        'Backend login এখনো সংযুক্ত করা হয়নি।';
+  btn.disabled = true;
+  message.textContent = "Login হচ্ছে...";
+
+  try {
+    const res = await fetch(API + "/api/admin/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({password})
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.token) {
+      throw new Error(data.error || "Login ব্যর্থ হয়েছে।");
     }
 
-    function savePrices() {
-      document.getElementById('saveMessage').textContent =
-        'দাম সেভ হয়নি। Server-side Admin API সংযুক্ত করতে হবে।';
+    token = data.token;
+    document.getElementById("priceForm").hidden = false;
+    message.textContent = "Login সফল হয়েছে!";
+    await loadPrices();
+  } catch (e) {
+    message.textContent = "সমস্যা: " + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function loadPrices() {
+  const box = document.getElementById("packages");
+  box.textContent = "প্যাকেজ লোড হচ্ছে...";
+
+  try {
+    const res = await fetch(API + "/api/admin/packages", {
+      headers: {"Authorization": "Bearer " + token}
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "প্যাকেজ লোড হয়নি।");
+
+    packageData = Array.isArray(data) ? data : data.packages;
+
+    if (!Array.isArray(packageData)) {
+      throw new Error("Backend-এর package response format মিলছে না।");
     }
-  </script>
+
+    box.replaceChildren();
+
+    packageData.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "package";
+
+      const title = document.createElement("strong");
+      title.textContent = item.name || item.id || ("Package " + (index + 1));
+
+      const price = document.createElement("input");
+      price.type = "number";
+      price.min = "0";
+      price.step = "1";
+      price.value = item.price;
+      price.dataset.index = String(index);
+      price.setAttribute("aria-label", "Price for " + title.textContent);
+
+      card.append(title, price);
+      box.appendChild(card);
+    });
+
+    document.getElementById("saveMessage").textContent =
+      packageData.length ? "প্যাকেজ লোড হয়েছে।" : "কোনো প্যাকেজ পাওয়া যায়নি।";
+  } catch (e) {
+    box.textContent = "";
+    document.getElementById("saveMessage").textContent =
+      "প্যাকেজ লোড সমস্যা: " + e.message;
+  }
+}
+
+async function savePrices() {
+  const msg = document.getElementById("saveMessage");
+  const btn = document.getElementById("saveBtn");
+  const inputs = document.querySelectorAll("#packages input");
+
+  const updated = packageData.map((item, index) => {
+    const value = Number(inputs[index].value);
+    return {...item, price: value};
+  });
+
+  if (updated.some(item =>
+    !Number.isFinite(Number(item.price)) || Number(item.price) < 0
+  )) {
+    msg.textContent = "সব দাম 0 বা তার বেশি সংখ্যা হতে হবে।";
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = "দাম সেভ হচ্ছে...";
+
+  try {
+    const res = await fetch(API + "/api/admin/packages", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({packages: updated})
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "দাম সেভ হয়নি।");
+
+    msg.textContent = "সেভ হয়েছে। প্যাকেজ আবার লোড করা হচ্ছে...";
+    await loadPrices();
+  } catch (e) {
+    msg.textContent = "সেভ সমস্যা: " + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function logout() {
+  token = "";
+  packageData = [];
+  document.getElementById("password").value = "";
+  document.getElementById("priceForm").hidden = true;
+  document.getElementById("packages").replaceChildren();
+  document.getElementById("message").textContent = "Logout হয়েছে।";
+  document.getElementById("saveMessage").textContent = "";
+}
+</script>
 </body>
 </html>
