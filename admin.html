@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Fire Admin Panel</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #101522;
+      color: white;
+    }
+    main {
+      max-width: 420px;
+      margin: 25px auto;
+      background: #1c2538;
+      padding: 20px;
+      border-radius: 14px;
+    }
+    input, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin: 8px 0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input {
+      border: 1px solid #53627b;
+      background: #101522;
+      color: white;
+    }
+    button {
+      border: 0;
+      background: #ffb52e;
+      font-weight: bold;
+    }
+    p { color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>🔐 Admin Panel</h2>
+    <p>এটি শুধু Admin Panel-এর প্রাথমিক ডিজাইন।</p>
+
+    <label>Admin Password</label>
+    <input id="password" type="password"
+      placeholder="Enter admin password">
+
+    <button onclick="login()">Login</button>
+    <p id="message"></p>
+
+    <section id="priceForm" hidden>
+      <h3>Instant Like Prices</h3>
+      <input id="p100" type="number" placeholder="100 Likes price">
+      <input id="p220" type="number" placeholder="220 Likes price">
+      <input id="p500" type="number" placeholder="500 Likes price">
+      <input id="p1000" type="number" placeholder="1000 Likes price">
+
+      <h3>Auto Like Prices</h3>
+      <input id="p3" type="number" placeholder="3 Days price">
+      <input id="p7" type="number" placeholder="7 Days price">
+      <input id="p15" type="number" placeholder="15 Days price">
+      <input id="p30" type="number" placeholder="30 Days price">
+      <input id="pPermanent" type="number" placeholder="Permanent price">
+
+      <button onclick="savePrices()">Save Prices</button>
+      <p id="saveMessage"></p>
+    </section>
+  </main>
+
+  <script>
+    function login() {
+      document.getElementById('message').textContent =
+        'Backend login এখনো সংযুক্ত করা হয়নি।';
+    }
+
+    function savePrices() {
+      document.getElementById('saveMessage').textContent =
+        'দাম সেভ হয়নি। Server-side Admin API সংযুক্ত করতে হবে।';
+    }
+  </script>
+</body>
+</html>
